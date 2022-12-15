@@ -1,22 +1,13 @@
-import {
-    Box,
-    Button,
-    Flex,
-    Grid,
-    Heading,
-    Image,
-    Text,
-    VStack,
-} from '@chakra-ui/react';
-import { Input } from 'components/Form/Input';
+import { Flex } from '@chakra-ui/react';
+import { LoginInfo } from './LoginInfo';
+import { LoginForm } from './LoginForm';
 
-import { FaEnvelope, FaLock } from 'react-icons/fa';
-
-import LogoSecondary from 'assets/logo-secondary.svg';
-import { useForm } from 'react-hook-form';
-import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
 import { useState } from 'react';
+import { useAuth } from 'contexts/AuthContext';
+
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 
 const signInSchema = yup.object().shape({
     email: yup.string().required('Email obrigatório').email('Email inválido'),
@@ -31,6 +22,8 @@ interface SignInData {
 export const Login = () => {
     const [loading, setLoading] = useState(false);
 
+    const { signIn } = useAuth();
+
     const {
         formState: { errors },
         register,
@@ -39,7 +32,12 @@ export const Login = () => {
         resolver: yupResolver(signInSchema),
     });
 
-    const handleSignin = (data: SignInData) => console.log(data);
+    const handleSignIn = ({ email, password }: SignInData) => {
+        setLoading(true);
+        signIn({ email, password })
+            .then(() => setLoading(false))
+            .catch(() => setLoading(false));
+    };
 
     return (
         <Flex
@@ -61,86 +59,13 @@ export const Login = () => {
                 alignItems="center"
                 flexDirection={['column', 'column', 'row', 'row']}
             >
-                <Grid w={['100%', '100%', '50%', '50%']} paddingRight="100px">
-                    <Image
-                        src={LogoSecondary}
-                        alt="do it"
-                        boxSize={['120px', '120px', '150px', '150px']}
-                    />
-                    <Heading mt="4" as="h1">
-                        O jeito fácil, grátis
-                    </Heading>
-                    <Text maxW="350px">
-                        Flexível e atrativo de gerenciar
-                        <b> seus projetos em uma única plataforma</b>
-                    </Text>
-                </Grid>
-                <Grid
-                    onSubmit={handleSubmit(handleSignin)}
-                    as="form"
-                    padding="30px 15px"
-                    border="3px solid"
-                    borderColor="gray.100"
-                    bg="white"
-                    color="gray.900"
-                    w={['100%', '100%', '50%', '50%']}
-                    mt={['6', '6', '0']}
-                >
-                    <Heading size="lg">Bem vindo de volta!</Heading>
-                    <VStack mt="6" spacing="5">
-                        <Box w="100%">
-                            <Input
-                                placeholder="Digite seu login"
-                                icon={FaEnvelope}
-                                label="Login"
-                                type="email"
-                                error={errors.email}
-                                {...register('email')}
-                            />
-                            {!errors.email && (
-                                <Text ml="1" mt="1" color="gray.300">
-                                    Exemplo: nome@email.com
-                                </Text>
-                            )}
-                        </Box>
-                        <Input
-                            placeholder="Digite sua senha"
-                            icon={FaLock}
-                            type="password"
-                            error={errors.password}
-                            {...register('password')}
-                        />
-                    </VStack>
-                    <VStack mt="4" spacing="5">
-                        <Button
-                            isLoading={loading}
-                            type="submit"
-                            bg="purple.800"
-                            w="100%"
-                            color="white"
-                            h="60px"
-                            borderRadius="8px"
-                            _hover={{ bg: 'purple.900' }}
-                        >
-                            Entrar
-                        </Button>
-
-                        <Text color="gray.400">
-                            Ainda não possui uma conta?
-                        </Text>
-
-                        <Button
-                            bg="gray.100"
-                            w="100%"
-                            color="gray.300"
-                            h="60px"
-                            borderRadius="8px"
-                            _hover={{ bg: 'gray.200' }}
-                        >
-                            Cadastrar
-                        </Button>
-                    </VStack>
-                </Grid>
+                <LoginInfo />
+                <LoginForm
+                    errors={errors}
+                    handleSignIn={handleSubmit(handleSignIn)}
+                    loading={loading}
+                    register={register}
+                />
             </Flex>
         </Flex>
     );
