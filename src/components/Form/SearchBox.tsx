@@ -3,9 +3,24 @@ import { FaSearch } from 'react-icons/fa';
 import { theme } from 'styles/theme';
 import { Input } from './Input';
 import { ModalCreateTask } from '../Modal/ModalCreateTask';
+import { useForm } from 'react-hook-form';
+import { useTasks } from '../../contexts/TaskContext';
+import { useAuth } from '../../contexts/AuthContext';
+
+interface SearchData {
+    title: string;
+}
 
 export const SearchBox = () => {
     const { isOpen, onClose, onOpen } = useDisclosure();
+    const { searchTask } = useTasks();
+    const { accessToken } = useAuth();
+
+    const handleSearch = ({ title }: SearchData) => {
+        searchTask(title, accessToken);
+    };
+
+    const { register, handleSubmit } = useForm<SearchData>();
 
     return (
         <>
@@ -20,11 +35,11 @@ export const SearchBox = () => {
                 borderBottomColor="gray.50"
                 flexDir={['column', 'column', 'row', 'row']}
             >
-                <Flex as="form">
+                <Flex as="form" onSubmit={handleSubmit(handleSearch)}>
                     <Input
-                        name="title"
                         placeholder="Pesquisar por tarefa"
                         w={['100%', '100%', '35vw']}
+                        {...register('title')}
                     />
                     <Center
                         borderRadius="8px"

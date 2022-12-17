@@ -6,6 +6,7 @@ import {
     HStack,
     Progress,
     Text,
+    ButtonProps,
 } from '@chakra-ui/react';
 import { useAuth } from 'contexts/AuthContext';
 import { FaCheck, FaTrash } from 'react-icons/fa';
@@ -13,7 +14,7 @@ import { FaCheck, FaTrash } from 'react-icons/fa';
 import { theme } from 'styles/theme';
 import { useTasks } from '../../contexts/TaskContext';
 
-interface Task {
+interface Task extends ButtonProps {
     id: string;
     title: string;
     description: string;
@@ -25,7 +26,7 @@ interface CardProps {
     onClick: (task: Task) => void;
 }
 
-export const Card = ({ task, onClick }: CardProps) => {
+export const Card = ({ task, onClick, ...rest }: CardProps) => {
     const { updateTask, deleteTask } = useTasks();
     const { accessToken, user } = useAuth();
 
